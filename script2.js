@@ -14,17 +14,20 @@ const orderID = params.get('ID');
 const container = document.getElementById('orderList');
 
 if (orderID) {
-  const firebaseURL = 'https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json';
+  const firebaseURL = 'https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json?alt=media';
 
-  fetch(firebaseURL)
+  fetch(firebaseURL, {
+  mode: 'no-cors' // Not recommended for production
+})
     .then(response => {
-      if (!response.ok) {
-        throw new Error('HTTP error ${response.status}');
-      }
+      //if (!response.ok) {
+      //  throw new Error('HTTP error ${response.status}');
+      //}
       return response.json();
     })
     .then(orderData => {
       if (typeof orderData === 'object' && orderData !== null) {
+	console.log(orderData)
         Object.entries(orderData).forEach(([name, stage]) => {
           const anchor = document.createElement('a');
           anchor.className = 'order-card';
