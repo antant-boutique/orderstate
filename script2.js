@@ -20,9 +20,9 @@ if (orderID) {
   mode: 'no-cors' // Not recommended for production
 })
     .then(response => {
-      //if (!response.ok) {
-      //  throw new Error('HTTP error ${response.status}');
-      //}
+      if (!response.ok) {
+        throw new Error('HTTP error ${response.status}');
+      }
       return response.json();
     })
     .then(orderData => {
