@@ -10,7 +10,7 @@ function getStatusText(stage) {
 }
 
 const params = new URLSearchParams(window.location.search);
-const orderID = params.get('ID');
+const orderID = params.get('orderID');
 const container = document.getElementById('orderList');
 
 if (orderID) {
