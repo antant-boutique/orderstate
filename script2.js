@@ -14,7 +14,7 @@ const orderID = params.get('ID');
 const container = document.getElementById('orderList');
 
 if (orderID) {
-  const firebaseURL = 'https://firebasestorage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json';
+  const firebaseURL = 'https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json';
 
   fetch(firebaseURL)
     .then(response => {
