@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Progress</title>
+  <style>
+    :root {
+      --size: 240px;
+    }
+
+    @media (min-width: 768px) {
+      :root {
+        --size: 180px;
+      }
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      background: #fffefb;
+    }
+
+    .progress-container {
+      text-align: center;
+      padding: 2rem 1rem;
+      max-width: 90vw;
+      width: 100%;
+    }
+
+    .pie {
+      width: var(--size);
+      height: var(--size);
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--color) calc(var(--progress) * 1%),
+        #e5e7eb 0
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      position: relative;
+      transition: background 1s ease-in-out;
+    }
+
+    .inner-circle {
+      width: calc(var(--size) * 0.65);
+      height: calc(var(--size) * 0.65);
+      background: white;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .inner-circle img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+
+    .status {
+      margin-top: 2rem;
+      color: #1f2937;
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+
+    .status span:first-child {
+      display: block;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .status span:last-child {
+      font-size: 2.0rem;
+    }
+
+    .icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-container">
+    <div class="icon" id="stageIcon">✂️</div>
+    <div class="pie" id="progressPie" style="--progress: 0; --color: #9ca3af;">
+      <div class="inner-circle">
+        <img src="ICON.png" alt="Status Icon" />
+      </div>
+    </div>
+    <div class="status" id="statusText">Awaiting Order Status...</div>
+  </div>
+
+  <script>
+    const query = new URLSearchParams(window.location.search.toLowerCase());
+    const stepCount = parseInt(query.get("step")) || 4;
+
+    const baseProgress = stepCount === 3 ? 33.33 : 25;
+
+    const stageInfo = stepCount === 3 ? {
+      material: {
+        progress: baseProgress * 1,
+        status: ["Material collected.", "Now tailoring..."],
+        icon: "✂️",
+        color: "#9ca3af"
+      },
+      tailoring: {
+        progress: baseProgress * 2,
+        status: ["Tailoring done.", "Now finishing..."],
+        icon: "✨",
+        color: "#f59e0b"
+      },
+      finishing: {
+        progress: baseProgress * 3,
+        status: ["Finishing done.", "Ready for you."],
+        icon: "📦",
+        color: "#10b981"
+      }
+    } : {
+      material: {
+        progress: baseProgress * 1,
+        status: ["Material collected.", "Now printing..."],
+        icon: "🖌️",
+        color: "#9ca3af"
+      },
+      printing: {
+        progress: baseProgress * 2,
+        status: ["Material printed.", "Now tailoring..."],
+        icon: " ",
+        color: "#6366f1"
+      },
+      tailoring: {
+        progress: baseProgress * 3,
+        status: ["Tailoring done.", "Now finishing..."],
+        icon: "✨",
+        color: "#f59e0b"
+      },
+      finishing: {
+        progress: baseProgress * 4,
+        status: ["Finishing done.", "Ready for you."],
+        icon: "📦",
+        color: "#10b981"
+      }
+    };
+
+    let stage = Object.keys(stageInfo).find(key => query.has(key));
+    let progress = 0;
+    let statusText = ["Unknown stage", ""];
+    let icon = "❓";
+    let color = "#e5e7eb";
+
+    if (stage) {
+      progress = stageInfo[stage].progress;
+      statusText = stageInfo[stage].status;
+      icon = stageInfo[stage].icon;
+      color = stageInfo[stage].color;
+    }
+
+    const pie = document.getElementById("progressPie");
+    const currentProgress = parseFloat(getComputedStyle(pie).getPropertyValue("--progress"));
+
+    // Animate transition by using requestAnimationFrame
+    let start = currentProgress;
+    let end = progress;
+    let startTime = null;
+
+    function animateProgress(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const progressTime = timestamp - startTime;
+      const duration = 1000; // 1 second
+      const ease = Math.min(progressTime / duration, 1);
+      const current = start + (end - start) * ease;
+      pie.style.setProperty("--progress", current);
+      pie.style.setProperty("--color", color);
+
+      if (ease < 1) {
+        requestAnimationFrame(animateProgress);
+      }
+    }
+
+    requestAnimationFrame(animateProgress);
+
+    document.getElementById("statusText").innerHTML = `<span>${statusText[0]}</span><span>${statusText[1]}</span>`;
+    document.getElementById("stageIcon").textContent = icon;
+  </script>
+
+</body>
+</html>
+
