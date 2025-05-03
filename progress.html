@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Order Progress</title>
   <style>
     :root {
@@ -88,16 +88,21 @@
     }
 
     .icon {
-      font-size: 2rem;
+      font-size: 4rem;
       display: block;
       margin-bottom: 1rem;
     }
+
+    .icon .material-symbols-outlined {
+      font-size: 3.5rem;
+    }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
 <body>
 
   <div class="progress-container">
-    <div class="icon" id="stageIcon">✂️</div>
+    <div class="icon" id="stageIcon"></div>
     <div class="pie" id="progressPie" style="--progress: 0; --color: #9ca3af;">
       <div class="inner-circle">
         <img src="ICON.png" alt="Status Icon" />
@@ -107,115 +112,76 @@
   </div>
 
   <script>
-  const query = new URLSearchParams(window.location.search.toLowerCase());
-  const stepCount = parseInt(query.get("step")) || 4;
-  const stageIndex = parseInt(query.get("stage")) || 0;
+    const query = new URLSearchParams(window.location.search.toLowerCase());
+    const stageIndex = parseInt(query.get("stage")) || 0;
 
-  const baseProgress = stepCount === 3 ? 33.33 : 25;
+    const baseProgress = 25;
 
-  const stages = stepCount === 3 ? [
-    {
-      name: "Start",
-      status: ["Order received.", "Preparing material..."],
-      icon: "🕒",
-      progress: 0,
-      color: "#e5e7eb"
-    },
-    {
-      name: "Material",
-      status: ["Material collected.", "Now tailoring..."],
-      icon: " ",
-      progress: baseProgress * 1,
-      color: "#9ca3af"
-    },
-    {
-      name: "Tailoring",
-      status: ["Tailoring done.", "Now finishing..."],
-      icon: "✨",
-      progress: baseProgress * 2,
-      color: "#f59e0b"
-    },
-    {
-      name: "Finishing",
-      status: ["Finishing done.", "Ready for you."],
-      icon: "📦",
-      progress: baseProgress * 3,
-      color: "#10b981"
-    },
-    {
-      name: "Delivered",
-      status: ["Order delivered!", "Thank you!"],
-      icon: "✅",
-      progress: 100,
-      color: "#22c55e"
+    const stages = [
+      {
+        name: "Start",
+        status: ["Order received.", "We are planning..."],
+        icon: '<span class="material-symbols-outlined">lightbulb</span>',
+        progress: 0,
+        color: "#e5e7eb"
+      },
+      {
+        name: "Material",
+        status: ["Material collected.", "Artwork in progress..."],
+        icon: '<span class="material-symbols-outlined">local_florist</span>',
+        progress: baseProgress * 1,
+        color: "#9ca3af"
+      },
+      {
+        name: "Printing",
+        status: ["Artwork complete.", "Now getting tailored..."],
+        icon: '<span class="material-symbols-outlined">cut</span>',
+        progress: baseProgress * 2,
+        color: "#6366f1"
+      },
+      {
+        name: "Tailoring",
+        status: ["Tailoring done.", "Finishing touch..."],
+        icon: '<span class="material-symbols-outlined">wand_stars</span>',
+        progress: baseProgress * 3,
+        color: "#f59e0b"
+      },
+      {
+        name: "Finishing",
+        status: ["Finished", "Ready for you!"],
+        icon: '<span class="material-symbols-outlined">package_2</span>',
+        progress: 100,
+        color: "#10b981"
+      }
+    ];
+
+    const stage = stages[Math.min(stageIndex, stages.length - 1)];
+    const pie = document.getElementById("progressPie");
+    const icon = document.getElementById("stageIcon");
+    const statusText = document.getElementById("statusText");
+
+    let start = 0;
+    let end = stage.progress;
+    let startTime = null;
+
+    function animateProgress(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const duration = 800;
+      const progress = Math.min(start + (end - start) * (elapsed / duration), end);
+      pie.style.setProperty('--progress', progress);
+      if (elapsed < duration) {
+        requestAnimationFrame(animateProgress);
+      }
     }
-  ] : [
-    {
-      name: "Start",
-      status: ["Order received.", "Preparing material..."],
-      icon: "🕒",
-      progress: 0,
-      color: "#e5e7eb"
-    },
-    {
-      name: "Material",
-      status: ["Material collected.", "Now printing..."],
-      icon: "🧵",
-      progress: baseProgress * 1,
-      color: "#9ca3af"
-    },
-    {
-      name: "Printing",
-      status: ["Material printed.", "Now tailoring..."],
-      icon: "🖌️",
-      progress: baseProgress * 2,
-      color: "#6366f1"
-    },
-    {
-      name: "Tailoring",
-      status: ["Tailoring done.", "Now finishing..."],
-      icon: "✨",
-      progress: baseProgress * 3,
-      color: "#f59e0b"
-    },
-    {
-      name: "Finishing",
-      status: ["Finishing done.", "Ready for you."],
-      icon: "📦",
-      progress: baseProgress * 4,
-      color: "#10b981"
-    }
-  ];
 
-  const stage = stages[Math.min(stageIndex, stages.length - 1)];
-
-  const pie = document.getElementById("progressPie");
-  const currentProgress = parseFloat(getComputedStyle(pie).getPropertyValue("--progress"));
-
-  let start = currentProgress;
-  let end = stage.progress;
-  let startTime = null;
-
-  function animateProgress(timestamp) {
-    if (!startTime) startTime = timestamp;
-    const progressTime = timestamp - startTime;
-    const duration = 1000;
-    const ease = Math.min(progressTime / duration, 1);
-    const current = start + (end - start) * ease;
-    pie.style.setProperty("--progress", current);
-    pie.style.setProperty("--color", stage.color);
-
-    if (ease < 1) {
-      requestAnimationFrame(animateProgress);
-    }
-  }
-
-  requestAnimationFrame(animateProgress);
-
-  document.getElementById("statusText").innerHTML = `<span>${stage.status[0]}</span><span>${stage.status[1]}</span>`;
-  document.getElementById("stageIcon").textContent = stage.icon;
+    pie.style.setProperty('--color', stage.color);
+    icon.innerHTML = stage.icon;
+    const iconSpan = icon.querySelector('.material-symbols-outlined');
+    if (iconSpan) iconSpan.style.color = stage.color;
+    statusText.innerHTML = `<span>${stage.status[0]}</span><span>${stage.status[1]}</span>`;
+    requestAnimationFrame(animateProgress);
   </script>
-
 </body>
 </html>
 

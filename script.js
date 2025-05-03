@@ -1,39 +1,87 @@
 function getStatusText(stage) {
-      switch(stage) {
-        case 'material': return 'Material collected';
-        case 'printing': return 'Printing in progress';
-        case 'tailoring': return 'Now tailoring...';
-        case 'finishing': return 'Now finishing...';
-        default: return 'In progress';
-      }
+  switch(stage) {
+    case 0: return 'Order received';
+    case 1: return 'Fabric assigned';
+    case 2: return 'Artwork complete';
+    case 3: return 'Tailoring done';
+    case 4: return 'Ready for you';
+    default: return 'In progress';
+  }
 }
 
 const params = new URLSearchParams(window.location.search);
-let ordersParam = params.get('orders');
-let orders = [];
+const orderID = params.get('ID');
+const container = document.getElementById('orderList');
+const pageTitle = document.getElementById('pageTitle');
 
-try {
-      orders = JSON.parse(ordersParam);
-    } catch (e) {
-      console.error('Invalid JSON in orders param:', e);
-    }
+function renderOrders(orderData) {
+  Object.entries(orderData).forEach(([name, stage]) => {
+    const anchor = document.createElement('a');
+    anchor.className = 'order-card';
+    anchor.href = `progress.html?stage=${stage}`;
 
-    const container = document.getElementById('orderList');
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'product-name';
+    nameDiv.textContent = name;
 
-    orders.forEach(order => {
-      const anchor = document.createElement('a');
-      anchor.className = 'order-card';
-      anchor.href = `progress.html?orderId=${order.id}&step=${order.step}&${order.stage}`;
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'order-status';
+    statusDiv.textContent = getStatusText(stage);
 
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'product-name';
-      nameDiv.textContent = order.name;
+    anchor.appendChild(nameDiv);
+    anchor.appendChild(statusDiv);
+    container.appendChild(anchor);
+  });
+}
 
-      const statusDiv = document.createElement('div');
-      statusDiv.className = 'order-status';
-      statusDiv.textContent = getStatusText(order.stage);
+if (orderID === 'demo') {
+  pageTitle.textContent = 'Your Orders (demo)';
 
-      anchor.appendChild(nameDiv);
-      anchor.appendChild(statusDiv);
-      container.appendChild(anchor);
+  let demoData;
+
+  // Check sessionStorage for previously generated demo data
+  const storedDemoData = sessionStorage.getItem('demoOrders');
+  if (storedDemoData) {
+    demoData = JSON.parse(storedDemoData);
+  } else {
+    // Generate new random demo data
+    const items = ['Saree', 'Shirt', 'Top'];
+    demoData = {};
+
+    items.forEach(item => {
+      const randomStage = Math.floor(Math.random() * 5); // stage 0–4
+      demoData[item] = randomStage;
     });
+
+    sessionStorage.setItem('demoOrders', JSON.stringify(demoData));
+  }
+
+  renderOrders(demoData);
+
+} else if (orderID) {
+  const firebaseURL = `https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json?alt=media`;
+
+  fetch(firebaseURL)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(orderData => {
+      if (typeof orderData === 'object' && orderData !== null) {
+        console.log(orderData);
+        renderOrders(orderData);
+      }
+    })
+    .catch(error => {
+      console.error('Failed to load order data:', error);
+      container.textContent = 'Failed to load your order details.';
+      container.style.color = 'white';
+    });
+
+} else {
+  container.textContent = 'No order ID provided in URL.';
+  container.style.color = 'white';
+}
+
