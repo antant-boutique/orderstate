@@ -107,96 +107,113 @@
   </div>
 
   <script>
-    const query = new URLSearchParams(window.location.search.toLowerCase());
-    const stepCount = parseInt(query.get("step")) || 4;
+  const query = new URLSearchParams(window.location.search.toLowerCase());
+  const stepCount = parseInt(query.get("step")) || 4;
+  const stageIndex = parseInt(query.get("stage")) || 0;
 
-    const baseProgress = stepCount === 3 ? 33.33 : 25;
+  const baseProgress = stepCount === 3 ? 33.33 : 25;
 
-    const stageInfo = stepCount === 3 ? {
-      material: {
-        progress: baseProgress * 1,
-        status: ["Material collected.", "Now tailoring..."],
-        icon: "✂️",
-        color: "#9ca3af"
-      },
-      tailoring: {
-        progress: baseProgress * 2,
-        status: ["Tailoring done.", "Now finishing..."],
-        icon: "✨",
-        color: "#f59e0b"
-      },
-      finishing: {
-        progress: baseProgress * 3,
-        status: ["Finishing done.", "Ready for you."],
-        icon: "📦",
-        color: "#10b981"
-      }
-    } : {
-      material: {
-        progress: baseProgress * 1,
-        status: ["Material collected.", "Now printing..."],
-        icon: "🖌️",
-        color: "#9ca3af"
-      },
-      printing: {
-        progress: baseProgress * 2,
-        status: ["Material printed.", "Now tailoring..."],
-        icon: " ",
-        color: "#6366f1"
-      },
-      tailoring: {
-        progress: baseProgress * 3,
-        status: ["Tailoring done.", "Now finishing..."],
-        icon: "✨",
-        color: "#f59e0b"
-      },
-      finishing: {
-        progress: baseProgress * 4,
-        status: ["Finishing done.", "Ready for you."],
-        icon: "📦",
-        color: "#10b981"
-      }
-    };
-
-    let stage = Object.keys(stageInfo).find(key => query.has(key));
-    let progress = 0;
-    let statusText = ["Unknown stage", ""];
-    let icon = "❓";
-    let color = "#e5e7eb";
-
-    if (stage) {
-      progress = stageInfo[stage].progress;
-      statusText = stageInfo[stage].status;
-      icon = stageInfo[stage].icon;
-      color = stageInfo[stage].color;
+  const stages = stepCount === 3 ? [
+    {
+      name: "Start",
+      status: ["Order received.", "Preparing material..."],
+      icon: "🕒",
+      progress: 0,
+      color: "#e5e7eb"
+    },
+    {
+      name: "Material",
+      status: ["Material collected.", "Now tailoring..."],
+      icon: " ",
+      progress: baseProgress * 1,
+      color: "#9ca3af"
+    },
+    {
+      name: "Tailoring",
+      status: ["Tailoring done.", "Now finishing..."],
+      icon: "✨",
+      progress: baseProgress * 2,
+      color: "#f59e0b"
+    },
+    {
+      name: "Finishing",
+      status: ["Finishing done.", "Ready for you."],
+      icon: "📦",
+      progress: baseProgress * 3,
+      color: "#10b981"
+    },
+    {
+      name: "Delivered",
+      status: ["Order delivered!", "Thank you!"],
+      icon: "✅",
+      progress: 100,
+      color: "#22c55e"
     }
-
-    const pie = document.getElementById("progressPie");
-    const currentProgress = parseFloat(getComputedStyle(pie).getPropertyValue("--progress"));
-
-    // Animate transition by using requestAnimationFrame
-    let start = currentProgress;
-    let end = progress;
-    let startTime = null;
-
-    function animateProgress(timestamp) {
-      if (!startTime) startTime = timestamp;
-      const progressTime = timestamp - startTime;
-      const duration = 1000; // 1 second
-      const ease = Math.min(progressTime / duration, 1);
-      const current = start + (end - start) * ease;
-      pie.style.setProperty("--progress", current);
-      pie.style.setProperty("--color", color);
-
-      if (ease < 1) {
-        requestAnimationFrame(animateProgress);
-      }
+  ] : [
+    {
+      name: "Start",
+      status: ["Order received.", "Preparing material..."],
+      icon: "🕒",
+      progress: 0,
+      color: "#e5e7eb"
+    },
+    {
+      name: "Material",
+      status: ["Material collected.", "Now printing..."],
+      icon: "🧵",
+      progress: baseProgress * 1,
+      color: "#9ca3af"
+    },
+    {
+      name: "Printing",
+      status: ["Material printed.", "Now tailoring..."],
+      icon: "🖌️",
+      progress: baseProgress * 2,
+      color: "#6366f1"
+    },
+    {
+      name: "Tailoring",
+      status: ["Tailoring done.", "Now finishing..."],
+      icon: "✨",
+      progress: baseProgress * 3,
+      color: "#f59e0b"
+    },
+    {
+      name: "Finishing",
+      status: ["Finishing done.", "Ready for you."],
+      icon: "📦",
+      progress: baseProgress * 4,
+      color: "#10b981"
     }
+  ];
 
-    requestAnimationFrame(animateProgress);
+  const stage = stages[Math.min(stageIndex, stages.length - 1)];
 
-    document.getElementById("statusText").innerHTML = `<span>${statusText[0]}</span><span>${statusText[1]}</span>`;
-    document.getElementById("stageIcon").textContent = icon;
+  const pie = document.getElementById("progressPie");
+  const currentProgress = parseFloat(getComputedStyle(pie).getPropertyValue("--progress"));
+
+  let start = currentProgress;
+  let end = stage.progress;
+  let startTime = null;
+
+  function animateProgress(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progressTime = timestamp - startTime;
+    const duration = 1000;
+    const ease = Math.min(progressTime / duration, 1);
+    const current = start + (end - start) * ease;
+    pie.style.setProperty("--progress", current);
+    pie.style.setProperty("--color", stage.color);
+
+    if (ease < 1) {
+      requestAnimationFrame(animateProgress);
+    }
+  }
+
+  requestAnimationFrame(animateProgress);
+
+  document.getElementById("statusText").innerHTML = `<span>${stage.status[0]}</span><span>${stage.status[1]}</span>`;
+  document.getElementById("stageIcon").textContent = stage.icon;
   </script>
 
 </body>
