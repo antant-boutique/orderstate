@@ -14,12 +14,10 @@ const orderID = params.get('orderID');
 const container = document.getElementById('orderList');
 
 if (orderID) {
-  //const firebaseURL = 'https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/05022025-1.json?alt=media';
-  const firebaseURL = 'https://firebasestorage.googleapis.com/v0/b/test1-1e3d0.appspot.com/o/05022025-1.json?alt=media';
+  const firebaseURL = 'https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/05022025-1.json?alt=media';
+  //const firebaseURL = 'https://firebasestorage.googleapis.com/v0/b/test1-1e3d0.appspot.com/o/orders/05022025-1.json?alt=media';
 
-  fetch(firebaseURL, {
-  mode: 'no-cors' // Not recommended for production
-})
+  fetch(firebaseURL)
     .then(response => {
       if (!response.ok) {
         throw new Error('HTTP error ${response.status}');
