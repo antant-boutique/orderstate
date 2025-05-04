@@ -59,7 +59,7 @@ if (orderID === 'demo') {
   renderOrders(demoData);
 
 } else if (orderID) {
-  const firebaseURL = `https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json?alt=media`;
+  const firebaseURL = `https://storage.googleapis.com/test1-1e3d0.appspot.com/orders/${orderID}.json?alt=media&t=${Date.now()}`;
 
   fetch(firebaseURL)
     .then(response => {
