@@ -17,12 +17,16 @@
     }
 
     @media (prefers-color-scheme: dark) {
+      :root {
+        /* Force light colors even if system prefers dark */
+        color-scheme: light;
+      }
+  
       body {
-        background: #fffefb;
-        color: #2f2719;
+        background-color: #fffefb !important;
+        color: initial !important;
       }
     }
-
 
     html, body {
       margin: 0;
