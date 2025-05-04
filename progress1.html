@@ -4,14 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light only">
-  <meta name="supported-color-schemes" content="light only">
   <title>Order Progress</title>
   <style>
     :root {
       --size: 240px;
       color-scheme: light only;
-      --text-color: #1f2937; /* Explicitly define text color */
-      --background-color: #fffefb; /* Centralize background color definition */
     }
 
     @media (min-width: 768px) {
@@ -20,34 +17,27 @@
       }
     }
 
-    /* Stronger dark mode prevention */
     @media (prefers-color-scheme: dark) {
       :root {
-        color-scheme: light only;
-        forced-color-adjust: none;
+        /* Force light colors even if system prefers dark */
+        color-scheme: light;
       }
   
-      body, html {
-        background-color: var(--background-color) !important;
-        color: var(--text-color) !important;
-        -webkit-tap-highlight-color: transparent !important;
-      }
-      
-      /* Protect all text elements */
-      body * {
-        color: var(--text-color) !important;
-        fill: var(--text-color) !important;
-        stroke: var(--text-color) !important;
+      body {
+        background-color: #fffefb !important;
+        color: initial !important;
       }
     }
 
-    /* Base styles */
+    /* Prevent WebView dark mode */
+    html {
+      background-color: #fffefb;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
-      background-color: var(--background-color);
-      color: var(--text-color);
     }
 
     body {
@@ -56,14 +46,14 @@
       justify-content: center;
       align-items: center;
       height: 100%;
-      background: var(--background-color);
-      background-color: var(--background-color);
-      color-scheme: light only;
-      -webkit-text-fill-color: initial;
-      -webkit-font-smoothing: antialiased;
+      background: #fffefb;
+      background-color: #fffefb;
+
+      /* Prevent forced dark mode */
+      color-scheme: light;
+      -webkit-text-fill-color: initial; /* Reset potential dark mode text color */
     }
 
-    /* Rest of your existing styles... */
     .progress-container {
       text-align: center;
       padding: 2rem 1rem;
@@ -106,7 +96,7 @@
 
     .status {
       margin-top: 2rem;
-      color: var(--text-color);
+      color: #1f2937;
       white-space: pre-line;
       line-height: 1.6;
     }
@@ -146,7 +136,6 @@
   </div>
 
   <script>
-    // Your existing JavaScript remains the same
     const query = new URLSearchParams(window.location.search.toLowerCase());
     const stageIndex = parseInt(query.get("stage")) || 0;
 
@@ -219,3 +208,4 @@
   </script>
 </body>
 </html>
+
