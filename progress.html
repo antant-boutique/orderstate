@@ -8,6 +8,7 @@
   <style>
     :root {
       --size: 240px;
+      color-scheme: light only;
     }
 
     @media (min-width: 768px) {
@@ -28,6 +29,11 @@
       }
     }
 
+    /* Prevent WebView dark mode */
+    html {
+      background-color: #fffefb;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -42,6 +48,10 @@
       height: 100%;
       background: #fffefb;
       background-color: #fffefb;
+
+      /* Prevent forced dark mode */
+      color-scheme: light;
+      -webkit-text-fill-color: initial; /* Reset potential dark mode text color */
     }
 
     .progress-container {
