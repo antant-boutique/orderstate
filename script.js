@@ -13,6 +13,10 @@ const params = new URLSearchParams(window.location.search);
 const orderID = params.get('ID');
 const container = document.getElementById('orderList');
 const pageTitle = document.getElementById('pageTitle');
+const custName = document.getElementById('Name');
+const orderNo = document.getElementById('OrderNo');
+const hline = document.createElement('hr');
+hline.className = 'styled-hr';
 
 function renderOrders(orderData) {
   Object.entries(orderData).forEach(([name, stage]) => {
@@ -36,7 +40,9 @@ function renderOrders(orderData) {
 
 if (orderID === 'demo') {
   pageTitle.textContent = 'Your Orders (demo)';
-
+  custName.textContent = 'Name:  Arijit Singh';
+  orderNo.textContent = 'Order No:  01012001-1';
+  container.parentNode.insertBefore(hline, container);
   let demoData;
 
   // Check sessionStorage for previously generated demo data
